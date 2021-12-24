@@ -27,7 +27,6 @@ import os
 import cv2
 import sys
 import argparse
-import wget
 import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'common'))
@@ -42,24 +41,7 @@ CAMERA_ID_DEFAULT = 0
 CAPTURE_WIDTH_DEFAULT = 640
 CAPTURE_HEIGHT_DEFAULT = 480
 SERVER_URL_DEFAULT = 'localhost:8000'
-LABEL_URL = 'https://github.com/triton-inference-server/server/blob/main/docs/examples/model_repository/densenet_onnx/densenet_labels.txt'
-LABEL_FILE = os.path.basename(LABEL_URL)
-
-
-def download_file(url, path):
-    file = os.path.join(path, os.path.basename(url))
-    if not os.path.exists(file):
-        wget.download(url, out=file)
-    else:
-        print('{} already exists'.format(file))
-    return file
-
-
-def download_label(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-    print('Downloading the label file from {}'.format(LABEL_URL))
-    download_file(LABEL_URL, path)
+CLASS_COUNT_DEFAULT = 3
 
 
 def convert_results(output_array):
@@ -76,18 +58,18 @@ def convert_results(output_array):
 
 def write_results(frame, results, interval):
     row = 32
-    # results = convert_results(results)
-    print(results[0][3])
-    # for result in results:
-    #     cv2.putText(
-    #         frame, result, (32, row),
-    #         cv2.FONT_HERSHEY_SIMPLEX, 1, (133, 15, 127), 2, cv2.LINE_AA
-    #     )
-    #     row += 40
+    results = convert_results(results)
+    for result in results:
+        cv2.putText(
+            frame, result, (32, row),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (133, 15, 127), 2, cv2.LINE_AA
+        )
+        row += 40
 
     height, width, color = frame.shape
+    frame_info = 'Size:{}x{}'.format(width, height)
     cv2.putText(
-        frame, 'MACNICA Inc.', (width - 240, height - 16),
+        frame, frame_info, (width - 280, height - 16),
         cv2.FONT_HERSHEY_SIMPLEX, 1, (133, 15, 127), 2, cv2.LINE_AA
     )
 
@@ -116,18 +98,13 @@ def main():
         type=str, default=SERVER_URL_DEFAULT, metavar='SERVER_URL',
         help='Triton Inference Server URL (Default: {})'.format(SERVER_URL_DEFAULT)
     )
+    parser.add_argument('--count',
+        type=int, default=CLASS_COUNT_DEFAULT, metavar='CLASS_COUNT',
+        help='Class Count to Display (Default: {})'.format(CLASS_COUNT_DEFAULT))
     args = parser.parse_args()
 
     # Create Triton client
     client = triton_client.TritonClient(url=args.url)
-
-    # Download label file
-    label_path = os.getcwd()
-    label_file = os.path.join(label_path, LABEL_FILE)
-    download_label(label_path)
-
-    # Load label categories
-    categories = [line.rstrip('\n') for line in open(label_file)]
 
     # Load model
     try:
@@ -188,7 +165,7 @@ def main():
             break
 
         # Submit inference request for frame n
-        client.infer(target_image)
+        client.infer(target_image, class_count=args.count)
 
     cv2.destroyAllWindows()
     cap.release()

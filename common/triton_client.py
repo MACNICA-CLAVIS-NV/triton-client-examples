@@ -176,14 +176,14 @@ class TritonClient():
         print('format        : {}'.format(self.format))
         print('dtype         : {}'.format(self.dtype))
 
-    def infer(self, image, class_count=3):
+    def infer(self, image, class_count=0):
         if self.max_batch_size > 0:
             image = image[np.newaxis, :]
 
         inputs = [httpclient.InferInput(self.input_name, image.shape, self.dtype)]
         inputs[0].set_data_from_numpy(image)
 
-        outputs = [httpclient.InferRequestedOutput(self.output_name)]
+        outputs = [httpclient.InferRequestedOutput(self.output_name, class_count=class_count)]
 
         try:
             self.request = self.client.async_infer(
