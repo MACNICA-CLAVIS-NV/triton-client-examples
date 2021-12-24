@@ -29,11 +29,15 @@ import os
 import numpy as np
 import argparse
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'common'))
 import interval_counter
 
 
 WINDOW_TITLE = 'Camera Test'
 INFO_COLOR = (0, 255, 0)
+CAMERA_ID_DEFAULT = 0
+CAPTURE_WIDTH_DEFAULT = 640
+CAPTURE_HEIGHT_DEFAULT = 480
 
 
 def draw_info(frame, interval):
@@ -58,14 +62,14 @@ def main():
     # Parse the command line parameters
     parser = argparse.ArgumentParser(description='Camera Test')
     parser.add_argument('--camera',
-        type=int, default=0, metavar='CAMERA_ID',
-        help='Camera ID')
+        type=int, default=CAMERA_ID_DEFAULT, metavar='CAMERA_ID',
+        help='Camera ID (Default: {})'.format(CAMERA_ID_DEFAULT))
     parser.add_argument('--width',
-        type=int, default=0, metavar='CAPTURE_WIDTH',
-        help='Capture Width')
+        type=int, default=CAPTURE_WIDTH_DEFAULT, metavar='CAPTURE_WIDTH',
+        help='Capture Width (Default: {})'.format(CAPTURE_WIDTH_DEFAULT))
     parser.add_argument('--height',
-        type=int, default=0, metavar='CAPTURE_HEIGHT',
-        help='Capture Height')
+        type=int, default=CAPTURE_HEIGHT_DEFAULT, metavar='CAPTURE_HEIGHT',
+        help='Capture Height (Default: {})'.format(CAPTURE_HEIGHT_DEFAULT))
     args = parser.parse_args()
 
     # Initialize camera device

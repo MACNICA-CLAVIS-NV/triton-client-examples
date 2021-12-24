@@ -29,6 +29,7 @@ import numpy as np
 import argparse
 import wget
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'common'))
 import triton_client
 import preprocess
 import interval_counter
