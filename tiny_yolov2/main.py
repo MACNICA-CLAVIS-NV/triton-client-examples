@@ -27,12 +27,11 @@ import sys
 import os
 import numpy as np
 import argparse
+import wget
 
 import triton_client
 import preprocess
 import interval_counter
-import tinyyolov2_model
-
 from data_processing import PostprocessYOLO
 
 
@@ -40,6 +39,28 @@ WINDOW_TITLE = 'Triton Tiny YOLO v2 Demo by MACNICA'
 MODEL_NAME = 'tinyyolov2_onnx'
 INFO_COLOR = (133, 15, 127)
 BBOX_COLOR = (63, 255, 255)
+CAMERA_ID_DEFAULT = 0
+CAPTURE_WIDTH_DEFAULT = 640
+CAPTURE_HEIGHT_DEFAULT = 480
+SERVER_URL_DEFAULT = 'localhost:8000'
+LABEL_URL = 'https://raw.githubusercontent.com/pjreddie/darknet/master/data/voc.names'
+LABEL_FILE = os.path.basename(LABEL_URL)
+
+
+def download_file(url, path):
+    file = os.path.join(path, os.path.basename(url))
+    if not os.path.exists(file):
+        wget.download(url, out=file)
+    else:
+        print('{} already exists'.format(file))
+    return file
+
+
+def download_label(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    print('Downloading the label file from {}'.format(LABEL_URL))
+    download_file(LABEL_URL, path)
 
 
 def draw_info(frame, interval):
@@ -80,28 +101,32 @@ def main():
     # Parse the command line parameters
     parser = argparse.ArgumentParser(description='Triton Tiny YOLO v2 Demo')
     parser.add_argument('--camera',
-        type=int, default=0, metavar='CAMERA_ID',
-        help='Camera ID')
+        type=int, default=CAMERA_ID_DEFAULT, metavar='CAMERA_ID',
+        help='Camera ID (Default: {})'.format(CAMERA_ID_DEFAULT))
     parser.add_argument('--width',
-        type=int, default=0, metavar='CAPTURE_WIDTH',
-        help='Capture Width')
+        type=int, default=CAPTURE_WIDTH_DEFAULT, metavar='CAPTURE_WIDTH',
+        help='Capture Width (Default: {})'.format(CAPTURE_WIDTH_DEFAULT))
     parser.add_argument('--height',
-        type=int, default=0, metavar='CAPTURE_HEIGHT',
-        help='Capture Height')
+        type=int, default=CAPTURE_HEIGHT_DEFAULT, metavar='CAPTURE_HEIGHT',
+        help='Capture Height (Default: {})'.format(CAPTURE_HEIGHT_DEFAULT))
     parser.add_argument('--url',
-        type=str, default='localhost:8000', metavar='SERVER_URL',
-        help='Triton Inference Server URL'
+        type=str, default=SERVER_URL_DEFAULT, metavar='SERVER_URL',
+        help='Triton Inference Server URL (Default: {})'.format(SERVER_URL_DEFAULT)
     )
     args = parser.parse_args()
 
     # Create Triton client
     client = triton_client.TritonClient(url=args.url)
 
-    model_path = os.path.join(os.getcwd(), 'model')
-    label_file = os.path.join(model_path, tinyyolov2_model.LABEL_FILE)
+    # Download label file
+    label_path = os.getcwd()
+    label_file = os.path.join(label_path, LABEL_FILE)
+    download_label(label_path)
 
-    tinyyolov2_model.download_label(model_path)
+    # Load label categories
+    categories = [line.rstrip('\n') for line in open(label_file)]
 
+    # Load model
     try:
         client.load_model(model_name=MODEL_NAME)
     except triton_client.TritonClientError as e:
@@ -109,9 +134,6 @@ def main():
         sys.exit(-1)
 
     print('Model {} loaded successfully'.format(MODEL_NAME))
-
-    # Load label categories
-    categories = [line.rstrip('\n') for line in open(label_file)]
 
     postprocessor_args = {
         # YOLO masks (Tiny YOLO v2 has only single scale.)
