@@ -24,7 +24,29 @@ echo "Repository Path: ${REPOSITORY_PATH}"
 mkdir -p ${VERSION_PATH}
 
 # Config file
-cp config.pbtxt ${MODEL_PATH}
+CONFIG_PB=$(cat <<EOS
+name: "tinyyolov2_onnx"
+platform: "onnxruntime_onnx"
+max_batch_size: 128
+input [
+    {
+        name: "image"
+        data_type: TYPE_FP32
+        format: FORMAT_NCHW
+        dims: [3, 416, 416]
+    }
+]
+output [
+    {
+        name: "grid"
+        data_type: TYPE_FP32
+        dims: [125, 13, 13]
+        label_filename: "voc.names"
+    }
+]
+EOS
+)
+echo "${CONFIG_PB}" >${MODEL_PATH}/config.pbtxt
 
 # Label file
 wget ${LABEL_URL} -O ${MODEL_PATH}/${LABEL_FILE}
