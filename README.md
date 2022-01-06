@@ -28,37 +28,35 @@ If not specified *download_path*, the model will be downloaded to **./model_repo
 ## Usage
 
 ### Tiny YOLO v2
+```
+python3 main.py [-h] [--camera CAMERA_ID] [--width CAPTURE_WIDTH] [--height CAPTURE_HEIGHT] [--url SERVER_URL]
 
-    ```
-    python3 main.py [-h] [--camera CAMERA_ID] [--width CAPTURE_WIDTH] [--height CAPTURE_HEIGHT] [--url SERVER_URL]
+Triton Tiny YOLO v2 Demo
 
-    Triton Tiny YOLO v2 Demo
-
-    optional arguments:
-    -h, --help            show this help message and exit
-    --camera CAMERA_ID    Camera ID (Default: 0)
-    --width CAPTURE_WIDTH
-                            Capture Width (Default: 640)
-    --height CAPTURE_HEIGHT
-                            Capture Height (Default: 480)
-    --url SERVER_URL      Triton Inference Server URL (Default: localhost:8000)
-    ```
+optional arguments:
+-h, --help            show this help message and exit
+--camera CAMERA_ID    Camera ID (Default: 0)
+--width CAPTURE_WIDTH
+                        Capture Width (Default: 640)
+--height CAPTURE_HEIGHT
+                        Capture Height (Default: 480)
+--url SERVER_URL      Triton Inference Server URL (Default: localhost:8000)
+```
 
 ### Densenet Classification
+```
+python3 main.py [-h] [--camera CAMERA_ID] [--width CAPTURE_WIDTH] [--height CAPTURE_HEIGHT] [--url SERVER_URL]
+            [--count CLASS_COUNT]
 
-    ```
-    python3 main.py [-h] [--camera CAMERA_ID] [--width CAPTURE_WIDTH] [--height CAPTURE_HEIGHT] [--url SERVER_URL]
-               [--count CLASS_COUNT]
+Triton Tiny YOLO v2 Demo
 
-    Triton Tiny YOLO v2 Demo
-
-    optional arguments:
-    -h, --help            show this help message and exit
-    --camera CAMERA_ID    Camera ID (Default: 0)
-    --width CAPTURE_WIDTH
-                            Capture Width (Default: 640)
-    --height CAPTURE_HEIGHT
-                            Capture Height (Default: 480)
-    --url SERVER_URL      Triton Inference Server URL (Default: localhost:8000)
-    --count CLASS_COUNT   Class Count to Display (Default: 3)
-    ```
+optional arguments:
+-h, --help            show this help message and exit
+--camera CAMERA_ID    Camera ID (Default: 0)
+--width CAPTURE_WIDTH
+                        Capture Width (Default: 640)
+--height CAPTURE_HEIGHT
+                        Capture Height (Default: 480)
+--url SERVER_URL      Triton Inference Server URL (Default: localhost:8000)
+--count CLASS_COUNT   Class Count to Display (Default: 3)
+```
