@@ -126,12 +126,7 @@ def main():
     fps_counter = interval_counter.IntervalCounter(10)
 
     # Define the function to detect window close event
-    if os.name == 'nt': # Windows
-        was_window_closed = lambda: cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_VISIBLE) < 1
-    elif os.name == 'posix': # Linux
-        was_window_closed = lambda: cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_AUTOSIZE) < 0
-    else:
-        was_window_closed = lambda: False
+    was_window_closed = lambda: cv2.getWindowProperty(WINDOW_TITLE, cv2.WND_PROP_VISIBLE) < 1
 
     while True:
         # Capture frame n
